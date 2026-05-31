@@ -1,0 +1,67 @@
+package com.skillswap.skillswap_backend.controller;
+
+import com.skillswap.skillswap_backend.dto.SkillDTO;
+import com.skillswap.skillswap_backend.service.SkillService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/skills")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
+@Tag(name = "Skill API", description = "CRUD operations for SkillSwap")
+public class SkillController {
+
+    private final SkillService skillService;
+
+    @GetMapping
+    @Operation(summary = "Get all skills")
+    public ResponseEntity<List<SkillDTO>> getAllSkills() {
+        return ResponseEntity.ok(skillService.getAllSkills());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get skill by ID")
+    public ResponseEntity<SkillDTO> getSkillById(@PathVariable Long id) {
+        return ResponseEntity.ok(skillService.getSkillById(id));
+    }
+
+    @PostMapping
+    @Operation(summary = "Create a new skill")
+    public ResponseEntity<SkillDTO> createSkill(@Valid @RequestBody SkillDTO skillDTO) {
+        return new ResponseEntity<>(skillService.createSkill(skillDTO), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing skill")
+    public ResponseEntity<SkillDTO> updateSkill(@PathVariable Long id,
+                                                 @Valid @RequestBody SkillDTO skillDTO) {
+        return ResponseEntity.ok(skillService.updateSkill(id, skillDTO));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a skill")
+    public ResponseEntity<String> deleteSkill(@PathVariable Long id) {
+        skillService.deleteSkill(id);
+        return ResponseEntity.ok("Skill deleted successfully");
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search skills by keyword")
+    public ResponseEntity<List<SkillDTO>> searchSkills(@RequestParam String keyword) {
+        return ResponseEntity.ok(skillService.searchSkills(keyword));
+    }
+
+    @GetMapping("/category/{category}")
+    @Operation(summary = "Filter skills by category")
+    public ResponseEntity<List<SkillDTO>> getSkillsByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(skillService.getSkillsByCategory(category));
+    }
+}
