@@ -42,6 +42,8 @@ public class Skill {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    private String ownerEmail;  // ← new
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

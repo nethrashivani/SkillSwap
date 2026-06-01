@@ -31,16 +31,21 @@ public class SkillService {
     }
 
     // Create skill
-    public SkillDTO createSkill(SkillDTO skillDTO) {
+    public SkillDTO createSkill(SkillDTO skillDTO, String ownerEmail) {
         Skill skill = convertToEntity(skillDTO);
+        skill.setOwnerEmail(ownerEmail);
         Skill savedSkill = skillRepository.save(skill);
         return convertToDTO(savedSkill);
     }
 
     // Update skill
-    public SkillDTO updateSkill(Long id, SkillDTO skillDTO) {
+    public SkillDTO updateSkill(Long id, SkillDTO skillDTO, String ownerEmail) {
         Skill existing = skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
+
+        if (existing.getOwnerEmail() != null && !existing.getOwnerEmail().equals(ownerEmail)) {
+            throw new RuntimeException("You are not authorized to edit this skill");
+        }
 
         existing.setTitle(skillDTO.getTitle());
         existing.setCategory(skillDTO.getCategory());
@@ -54,9 +59,14 @@ public class SkillService {
     }
 
     // Delete skill
-    public void deleteSkill(Long id) {
+    public void deleteSkill(Long id, String ownerEmail) {
         Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found with id: " + id));
+
+        if (skill.getOwnerEmail() != null && !skill.getOwnerEmail().equals(ownerEmail)) {
+            throw new RuntimeException("You are not authorized to delete this skill");
+        }
+
         skillRepository.delete(skill);
     }
 
@@ -88,6 +98,7 @@ public class SkillService {
                 .experienceYears(skill.getExperienceYears())
                 .location(skill.getLocation())
                 .createdAt(skill.getCreatedAt())
+                .ownerEmail(skill.getOwnerEmail())
                 .build();
     }
 
@@ -100,5 +111,12 @@ public class SkillService {
                 .experienceYears(dto.getExperienceYears())
                 .location(dto.getLocation())
                 .build();
+    }
+
+    public List<SkillDTO> getMySkills(String ownerEmail) {
+        return skillRepository.findByOwnerEmail(ownerEmail)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }

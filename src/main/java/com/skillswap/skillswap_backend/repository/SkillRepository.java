@@ -14,9 +14,11 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     // Filter by category
     List<Skill> findByCategory(String category);
 
+    List<Skill> findByOwnerEmail(String ownerEmail);
+
     // Search by title or category containing keyword
     @Query("SELECT s FROM Skill s WHERE " +
-           "LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-           "LOWER(s.category) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+            "LOWER(s.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(s.category) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Skill> searchSkills(@Param("keyword") String keyword);
 }
